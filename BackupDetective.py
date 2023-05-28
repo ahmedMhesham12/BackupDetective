@@ -41,23 +41,30 @@ def generate_backup_file_names(domain):
 
     return backup_file_names
 
-if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print("Please provide a domain name as an argument.")
-        sys.exit(1)
+def check_backup_files(domain_list):
+    for domain in domain_list:
+        domain = domain.strip()  # Remove leading/trailing whitespace
+        domain = domain.replace("https://", "").replace("http://", "").replace("www.", "")
+        backup_files = generate_backup_file_names(domain)
 
-    domain_name = sys.argv[1]
-    backup_files = generate_backup_file_names(domain_name)
-
-    output_file_name = f"{domain_name}.txt"
-
-    with open(output_file_name, 'w') as output_file:
         for file_name in backup_files:
             url = f"http://{file_name}"
             response = requests.head(url)
 
             if response.status_code == 200:
-                output_file.write(f"{domain_name}/{file_name}\n")
-                print(f"{domain_name}/{file_name}")
+                print(f"{domain}/{file_name}")
 
-    print(f"Backup file names saved to {output_file_name}.")
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print("Please provide a domain list file as an argument.")
+        sys.exit(1)
+
+    domain_file_name = sys.argv[1]
+
+    try:
+        with open(domain_file_name, 'r') as domain_file:
+            domain_list = domain_file.readlines()
+            check_backup_files(domain_list)
+    except FileNotFoundError:
+        print(f"Domain list file '{domain_file_name}' not found.")
+        sys.exit(1)
