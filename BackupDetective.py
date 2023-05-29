@@ -49,7 +49,7 @@ def check_backup_files(domain_list):
 
         for file_name in backup_files:
             url = f"http://{file_name}"
-            response = requests.head(url)
+            response = requests.get(url)
 
             if response.status_code == 200:
                 print(f"{domain}/{file_name}")
